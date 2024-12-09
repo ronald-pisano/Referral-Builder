@@ -1,11 +1,13 @@
-import { Button } from "@headlessui/react";
+import { Button, ButtonProps } from "@headlessui/react";
 
 const FormButton = ({
   text,
   type,
+  buttonProps,
 }: {
   text: string;
   type: "primary" | "secondary";
+  buttonProps?: ButtonProps;
 }) => {
   const buttonStyle =
     type === "primary"
@@ -14,6 +16,7 @@ const FormButton = ({
 
   return (
     <Button
+      {...buttonProps}
       className={
         "block w-full px-2 py-4 uppercase font-bold text-primary shadow-sm shadow-primary " +
         buttonStyle
