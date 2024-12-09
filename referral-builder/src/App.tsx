@@ -1,4 +1,4 @@
-import { Button, Fieldset } from "@headlessui/react";
+import { Fieldset } from "@headlessui/react";
 import "./App.css";
 import FieldSetLegend from "./components/forms/FieldSetLegend";
 import LabeledInput from "./components/forms/LabeledInput";
@@ -6,8 +6,27 @@ import MenuIcon from "./assets/icons/MenuIcon";
 import PencilIcon from "./assets/icons/PencilIcon";
 import TrashIcon from "./assets/icons/TrashIcon";
 import FormButton from "./components/forms/FormButton";
+import { ReferralInfo } from "./models/ReferralInfo";
+import testReferralInfoData from "./models/test-data/ReferralInfo-Test";
 
 function App() {
+  const referralInfo: ReferralInfo[] = testReferralInfoData;
+
+  const renderTableRow = (referralInfo: ReferralInfo): JSX.Element => {
+    return (
+      <tr className="text-sm leading-6 text-primary py-4 border-b border-muted">
+        <td>{referralInfo.givenName}</td>
+        <td>{referralInfo.surname}</td>
+        <td>{referralInfo.email}</td>
+        <td>{referralInfo.phone}</td>
+        <td>
+          <PencilIcon className="fill-primary stroke-none stroke-1 size-4 inline" />
+          <TrashIcon className="fill-primary stroke-none stroke-1 size-4 inline" />
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <div className="flex">
       <div className="flex-col p-4 h-screen w-full md:max-w-screen-md min-w-80 overflow-auto">
@@ -56,26 +75,7 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              <tr className="text-sm leading-6 text-primary py-4 border-b border-muted">
-                <td>John</td>
-                <td>Johnson</td>
-                <td>jh@email123.com</td>
-                <td>0453-283-283</td>
-                <td>
-                  <PencilIcon className="fill-primary stroke-none stroke-1 size-4 inline" />
-                  <TrashIcon className="fill-primary stroke-none stroke-1 size-4 inline" />
-                </td>
-              </tr>
-              <tr className="text-sm leading-6 text-primary py-4 border-b border-muted">
-                <td>Matthew</td>
-                <td>Lombard</td>
-                <td>mat197501@gmail.com</td>
-                <td>0453-283-283</td>
-                <td>
-                  <PencilIcon className="fill-primary stroke-none stroke-1 size-4 inline" />
-                  <TrashIcon className="fill-primary stroke-none stroke-1 size-4 inline" />
-                </td>
-              </tr>
+              {referralInfo.map((referralInfo) => renderTableRow(referralInfo))}
             </tbody>
           </table>
         </div>
