@@ -1,5 +1,5 @@
 import { Address } from "../models/Address";
-import { ReferralInfo } from "../models/ReferralInfo";
+import { blankReferral, ReferralInfo } from "../models/ReferralInfo";
 
 type ReferralInfoEditableProperties = Omit<ReferralInfo, "id" | "Address">;
 type AddressEditableProperties = Address;
@@ -24,7 +24,7 @@ export type ReferralState = {
 };
 
 export const initialState: ReferralState = {
-  referral: new ReferralInfo(null, "", "", "", ""),
+  referral: blankReferral,
 };
 
 export function referralReducer(
@@ -58,11 +58,10 @@ export function referralReducer(
       };
 
     case "RESET":
-      if (state.originalReferral) {
-        return { ...state, referral: state.originalReferral };
-      }
-
-      return { ...state, referral: new ReferralInfo(null, "", "", "", "") };
+      return {
+        ...state,
+        referral: blankReferral,
+      };
 
     default:
       const _exhaustiveCheck: never = action;

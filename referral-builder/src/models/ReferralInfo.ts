@@ -6,6 +6,7 @@ export class ReferralInfo {
   surname: string;
   email: string;
   phone: string;
+  avatar?: string;
   Address?: Address;
 
   public constructor(
@@ -14,6 +15,7 @@ export class ReferralInfo {
     surname: string,
     email: string,
     phone: string,
+    avatar?: string,
     Address?: Address
   ) {
     this.id = id;
@@ -21,6 +23,17 @@ export class ReferralInfo {
     this.surname = surname;
     this.email = email;
     this.phone = phone;
+    this.avatar = avatar;
     this.Address = Address;
   }
 }
+
+export const blankReferral = new ReferralInfo(
+  null,
+  "",
+  "",
+  "",
+  "",
+  undefined,
+  new Address("", "", "", "", "", "")
+);
