@@ -50,8 +50,8 @@ export function referralReducer(
         ...state,
         referral: {
           ...state.referral,
-          Address: {
-            ...state.referral.Address!,
+          address: {
+            ...state.referral.address!,
             [action.field]: action.payload,
           },
         },

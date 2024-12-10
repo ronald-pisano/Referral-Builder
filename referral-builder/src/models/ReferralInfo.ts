@@ -7,7 +7,7 @@ export class ReferralInfo {
   email: string;
   phone: string;
   avatar?: string;
-  Address?: Address;
+  address?: Address;
 
   public constructor(
     id: number | null,
@@ -16,7 +16,7 @@ export class ReferralInfo {
     email: string,
     phone: string,
     avatar?: string,
-    Address?: Address
+    address?: Address
   ) {
     this.id = id;
     this.givenName = givenName;
@@ -24,7 +24,7 @@ export class ReferralInfo {
     this.email = email;
     this.phone = phone;
     this.avatar = avatar;
-    this.Address = Address;
+    this.address = address;
   }
 }
 

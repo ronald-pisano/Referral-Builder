@@ -14,7 +14,7 @@ import XMarkIcon from "./assets/icons/XMarkIcon";
 import { formatPhoneNumber } from "./helpers/formatters";
 import { isValidEmail, isValidNumber } from "./helpers/validators";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { addReferral, fetchReferrals } from "./api/referrals";
+import { upsertReferral, fetchReferrals } from "./api/referrals";
 
 function App() {
   const [referralInfoState, dispatch] = useReducer(
@@ -39,8 +39,11 @@ function App() {
     cacheTime: 0,
   });
 
-  const { mutateAsync: addReferralMutation } = useMutation({
-    mutationFn: addReferral,
+  const {
+    mutateAsync: upsertReferralMutation,
+    isLoading: upsertReferralLoading,
+  } = useMutation({
+    mutationFn: upsertReferral,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["referrals"] });
     },
@@ -128,7 +131,7 @@ function App() {
       isValidNumber(referralInfoState?.referral.phone)
     ) {
       try {
-        await addReferralMutation(referralInfoState.referral);
+        await upsertReferralMutation(referralInfoState.referral);
         dispatch({ type: "RESET" });
         setShowFormValidations(false);
       } catch (e) {
@@ -227,7 +230,7 @@ function App() {
             <LabeledInput
               label="Home Name Or #"
               inputProps={{
-                value: referralInfoState.referral.Address?.homeNameOrNumber,
+                value: referralInfoState.referral.address?.homeNameOrNumber,
                 onChange: (e) =>
                   dispatch({
                     type: "UPDATE_ADDRESS",
@@ -239,7 +242,7 @@ function App() {
             <LabeledInput
               label="Street"
               inputProps={{
-                value: referralInfoState.referral.Address?.street,
+                value: referralInfoState.referral.address?.street,
                 onChange: (e) =>
                   dispatch({
                     type: "UPDATE_ADDRESS",
@@ -251,7 +254,7 @@ function App() {
             <LabeledInput
               label="Suburb"
               inputProps={{
-                value: referralInfoState.referral.Address?.suburb,
+                value: referralInfoState.referral.address?.suburb,
                 onChange: (e) =>
                   dispatch({
                     type: "UPDATE_ADDRESS",
@@ -263,7 +266,7 @@ function App() {
             <LabeledInput
               label="State"
               inputProps={{
-                value: referralInfoState.referral.Address?.state,
+                value: referralInfoState.referral.address?.state,
                 onChange: (e) =>
                   dispatch({
                     type: "UPDATE_ADDRESS",
@@ -275,7 +278,7 @@ function App() {
             <LabeledInput
               label="Postcode"
               inputProps={{
-                value: referralInfoState.referral.Address?.postcode,
+                value: referralInfoState.referral.address?.postcode,
                 onChange: (e) =>
                   dispatch({
                     type: "UPDATE_ADDRESS",
@@ -287,7 +290,7 @@ function App() {
             <LabeledInput
               label="Country"
               inputProps={{
-                value: referralInfoState.referral.Address?.country,
+                value: referralInfoState.referral.address?.country,
                 onChange: (e) =>
                   dispatch({
                     type: "UPDATE_ADDRESS",
@@ -310,6 +313,7 @@ function App() {
               text="Upload Avatar"
               type="secondary"
               buttonProps={{
+                disabled: upsertReferralLoading,
                 onClick: () => {
                   fileInputRef.current?.click();
                 },
@@ -331,27 +335,31 @@ function App() {
                   : "Update Referral"
               }
               type="primary"
-              buttonProps={{ type: "submit", onClick: () => handleSubmit() }}
+              buttonProps={{
+                type: "submit",
+                onClick: () => handleSubmit(),
+                disabled: upsertReferralLoading,
+              }}
             />
           </div>
         </Fieldset>
       </div>
       <div className="grow flex justify-center py-12 px-8 bg-base">
         <div className="bg-white border-md w-full p-6">
-          <table className="table-auto w-full">
-            <thead>
-              <tr className="uppercase text-sm leading-8 font-bold text-primary border-b border-muted">
-                <th className="text-start"></th>
-                <th className="text-start">Given Name</th>
-                <th className="text-start">Surname</th>
-                <th className="text-start">Email</th>
-                <th className="text-start">Phone</th>
-                <th className="text-start">Actions</th>
-              </tr>
-            </thead>
-            {isLoading ? (
-              <div>Loading...</div>
-            ) : (
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <table className="table-auto w-full">
+              <thead>
+                <tr className="uppercase text-sm leading-8 font-bold text-primary border-b border-muted">
+                  <th className="text-start"></th>
+                  <th className="text-start">Given Name</th>
+                  <th className="text-start">Surname</th>
+                  <th className="text-start">Email</th>
+                  <th className="text-start">Phone</th>
+                  <th className="text-start">Actions</th>
+                </tr>
+              </thead>
               <tbody>
                 {referralInfoState.referral.id === null &&
                   (referralInfoState.referral.givenName ||
@@ -363,8 +371,8 @@ function App() {
                   renderTableRow(referralInfo)
                 )}
               </tbody>
-            )}
-          </table>
+            </table>
+          )}
         </div>
       </div>
     </div>
