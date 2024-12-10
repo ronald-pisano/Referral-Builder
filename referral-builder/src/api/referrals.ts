@@ -1,46 +1,105 @@
 import { ReferralInfo } from "../models/ReferralInfo";
-import testReferralInfoData from "../models/test-data/ReferralInfo-Test";
 
-const referrals = testReferralInfoData;
+const baseUrl = "http://localhost:5000/api/referrals";
 
-/**
- * Mock function that mimics fetching todos from a database.
- */
-export const fetchReferrals = async (query = ""): Promise<ReferralInfo[]> => {
+export const fetchReferrals = async (): Promise<ReferralInfo[]> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log("fetched referrals");
+  try {
+    const response = await fetch(baseUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  const filteredTodos = referrals.filter((referral) =>
-    referral.givenName.toLowerCase().includes(query.toLowerCase())
-  );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-  // Uncomment the line below to trigger an error
-  // throw new Error();
+    const data = await response.json();
 
-  return [...filteredTodos];
+    return data.items;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+
+  return [];
 };
 
-/**
- * Mock function that mimics adding a todo to a database.
- */
-export const addReferral = async (
+export const upsertReferral = async (
   referral: ReferralInfo
 ): Promise<ReferralInfo> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  if (referrals.find((f) => f.id === referral.id)) {
-    referrals.map((ref) => {
-      ref.id === referral.id ? referral : ref;
+  const { id, ...referralWithoutId } = referral;
+  var requestBody = referralWithoutId;
+
+  if (id) {
+    try {
+      const response = await fetch(`${baseUrl}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  } else {
+    try {
+      const response = await fetch(baseUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+  return referral;
+};
+
+export const deleteReferral = async (referralId: number) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  try {
+    const response = await fetch(`${baseUrl}/${referralId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
-    return referral;
-  } else {
-    let newReferral: ReferralInfo = { ...referral, id: referrals.length + 1 };
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    console.log("pushedReferral", newReferral);
-    referrals.push(newReferral);
+    const data = await response.json();
 
-    return newReferral;
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
   }
 };

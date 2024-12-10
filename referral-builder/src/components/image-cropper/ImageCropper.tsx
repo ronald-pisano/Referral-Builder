@@ -26,11 +26,6 @@ const ImageCropper = ({
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
 
-  //   const [isOpen, setIsOpen] = useState(false);
-  //   const fileInputRef = useRef<HTMLInputElement>(null);
-  //   const [image, setImage] = useState<string>();
-  //   const [croppedImage, setCroppedImage] = useState<string>();
-
   const onCropComplete = (_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
@@ -109,7 +104,7 @@ const ImageCropper = ({
               <div className="flex-col">
                 <div className="flex space-x-8">
                   <Field className="flex-col w-full place-items-center">
-                    <Label className="block font-bold text-inverse mb-2">
+                    <Label className="block font-bold text-white mb-2">
                       Zoom
                     </Label>
                     <input
@@ -124,7 +119,7 @@ const ImageCropper = ({
                     />
                   </Field>
                   <Field className="flex-col w-full place-items-center">
-                    <Label className="block font-bold text-inverse mb-2">
+                    <Label className="block font-bold text-white mb-2">
                       Rotation
                     </Label>
                     <input
