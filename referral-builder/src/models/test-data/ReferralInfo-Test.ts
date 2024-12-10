@@ -8,6 +8,7 @@ const testReferralInfoData: ReferralInfo[] = [
     "Johnson",
     "jh@email121.com",
     "0453-283-283",
+    undefined,
     new Address("12", "High Street", "Sydney", "NSW", "2000", "Australia")
   ),
   new ReferralInfo(
@@ -16,6 +17,7 @@ const testReferralInfoData: ReferralInfo[] = [
     "Lombard",
     "mat197501@gmail.com",
     "0453-283-283",
+    undefined,
     new Address("45", "Main Road", "Melbourne", "VIC", "3000", "Australia")
   ),
   new ReferralInfo(
@@ -24,6 +26,7 @@ const testReferralInfoData: ReferralInfo[] = [
     "Dickson",
     "joe@dickson.com",
     "0453-283-283",
+    undefined,
     new Address("89", "Elm Street", "Brisbane", "QLD", "4000", "Australia")
   ),
   new ReferralInfo(
@@ -32,6 +35,7 @@ const testReferralInfoData: ReferralInfo[] = [
     "Johnson",
     "scarlet@johnson.com",
     "0453-283-283",
+    undefined,
     new Address("101", "King Street", "Adelaide", "SA", "5000", "Australia")
   ),
   new ReferralInfo(
@@ -40,6 +44,7 @@ const testReferralInfoData: ReferralInfo[] = [
     "Rhonda",
     "peter101@yahoo.com",
     "0453-283-283",
+    undefined,
     new Address("76", "Queen Street", "Perth", "WA", "6000", "Australia")
   ),
 ];
