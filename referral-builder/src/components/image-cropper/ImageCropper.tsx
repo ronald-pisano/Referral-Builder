@@ -1,7 +1,7 @@
 import { Dialog, DialogPanel, Field, Label, Button } from "@headlessui/react";
 import { RefObject, useState } from "react";
 import Cropper, { Area } from "react-easy-crop";
-import { getCroppedImg } from "./canvasUtils";
+import { getCroppedImg } from "../../helpers/canvasUtils";
 
 const ImageCropper = ({
   isOpen,
@@ -103,7 +103,6 @@ const ImageCropper = ({
                 onRotationChange={setRotation}
                 onCropComplete={onCropComplete}
                 onZoomChange={setZoom}
-                // style={{ containerStyle: { height: "90%" } }}
               />
             </div>
             <div className="controls py-4 absolute left-0 bottom-0 w-full px-16 bg-dark/80">

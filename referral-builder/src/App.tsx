@@ -7,12 +7,14 @@ import PencilIcon from "./assets/icons/PencilIcon";
 import TrashIcon from "./assets/icons/TrashIcon";
 import FormButton from "./components/forms/FormButton";
 import { ReferralInfo } from "./models/ReferralInfo";
-import testReferralInfoData from "./models/test-data/ReferralInfo-Test";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { initialState, referralReducer } from "./reducers/referralReducer";
-import ImageCropper from "./components/ImageCropper/ImageCropper";
+import ImageCropper from "./components/image-cropper/ImageCropper";
 import XMarkIcon from "./assets/icons/XMarkIcon";
 import { formatPhoneNumber } from "./helpers/formatters";
+import { isValidEmail, isValidNumber } from "./helpers/validators";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { addReferral, fetchReferrals } from "./api/referrals";
 
 function App() {
   const [referralInfoState, dispatch] = useReducer(
@@ -23,9 +25,30 @@ function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState<string>();
   const [croppedImage, setCroppedImage] = useState<string>();
+  const queryClient = useQueryClient();
+  const [showFormValidations, setShowFormValidations] = useState(false);
 
-  const [referralTableInfo, setReferralTableInfo] =
-    useState<ReferralInfo[]>(testReferralInfoData);
+  const [referralTableInfo, setReferralTableInfo] = useState<ReferralInfo[]>(
+    []
+  );
+
+  const { data: referrals, isLoading } = useQuery({
+    queryKey: ["referrals"],
+    queryFn: () => fetchReferrals(),
+    staleTime: Infinity,
+    cacheTime: 0,
+  });
+
+  const { mutateAsync: addReferralMutation } = useMutation({
+    mutationFn: addReferral,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
+    },
+  });
+
+  useEffect(() => {
+    referrals && setReferralTableInfo(referrals!);
+  }, [referrals]);
 
   useEffect(() => {
     setReferralTableInfo((prev) => {
@@ -97,10 +120,26 @@ function App() {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-    alert("Submitted Data: " + referralInfoState.referral?.email);
+  const handleSubmit = async () => {
+    if (
+      !!referralInfoState?.referral.givenName &&
+      !!referralInfoState?.referral.surname &&
+      isValidEmail(referralInfoState?.referral.email) &&
+      isValidNumber(referralInfoState?.referral.phone)
+    ) {
+      try {
+        await addReferralMutation(referralInfoState.referral);
+        dispatch({ type: "RESET" });
+        setShowFormValidations(false);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      setShowFormValidations(true);
+    }
   };
+
+  const isNotNewReferral = referralInfoState.referral.id !== null;
 
   return (
     <div className="flex">
@@ -112,13 +151,17 @@ function App() {
           <MenuIcon className="size-6 stroke-black md:hidden" />
         </div>
 
-        <Fieldset onSubmit={handleSubmit}>
+        <Fieldset>
           <FieldSetLegend text="Personal Details" />
           <div className="grid xl:grid-cols-2 gap-4">
             <LabeledInput
               label="Given Name"
+              showValidation={isNotNewReferral || showFormValidations}
+              isValid={() => !!referralInfoState?.referral.givenName}
+              errorMessage="Given name is required"
               inputProps={{
                 value: referralInfoState?.referral.givenName,
+                invalid: !referralInfoState?.referral.givenName,
                 onChange: (e) =>
                   dispatch({
                     type: "UPDATE_FIELD",
@@ -129,6 +172,9 @@ function App() {
             />
             <LabeledInput
               label="Surname"
+              showValidation={isNotNewReferral || showFormValidations}
+              isValid={() => !!referralInfoState?.referral.surname}
+              errorMessage="Surname is required"
               inputProps={{
                 value: referralInfoState?.referral.surname,
                 onChange: (e) =>
@@ -141,6 +187,9 @@ function App() {
             />
             <LabeledInput
               label="Email"
+              showValidation={isNotNewReferral || showFormValidations}
+              isValid={() => isValidEmail(referralInfoState?.referral.email)}
+              errorMessage="Email is not valid format"
               inputProps={{
                 type: "email",
                 value: referralInfoState?.referral.email,
@@ -154,6 +203,9 @@ function App() {
             />
             <LabeledInput
               label="Phone"
+              showValidation={isNotNewReferral || showFormValidations}
+              isValid={() => isValidNumber(referralInfoState?.referral.phone)}
+              errorMessage="Phone number is not valid format"
               inputProps={{
                 value: referralInfoState?.referral.phone,
                 maxLength: 12,
@@ -245,7 +297,7 @@ function App() {
               }}
             />
           </div>
-          {croppedImage && (
+          {referralInfoState.referral.avatar && (
             <div>
               <FieldSetLegend text="Avatar" />
               <div className="flex justify-center">
@@ -279,7 +331,7 @@ function App() {
                   : "Update Referral"
               }
               type="primary"
-              buttonProps={{ type: "submit" }}
+              buttonProps={{ type: "submit", onClick: () => handleSubmit() }}
             />
           </div>
         </Fieldset>
@@ -297,17 +349,21 @@ function App() {
                 <th className="text-start">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {referralInfoState.referral.id === null &&
-                (referralInfoState.referral.givenName ||
-                  referralInfoState.referral.surname ||
-                  referralInfoState.referral.email ||
-                  referralInfoState.referral.phone) &&
-                renderTableRow(referralInfoState.referral)}
-              {referralTableInfo.map((referralInfo) =>
-                renderTableRow(referralInfo)
-              )}
-            </tbody>
+            {isLoading ? (
+              <div>Loading...</div>
+            ) : (
+              <tbody>
+                {referralInfoState.referral.id === null &&
+                  (referralInfoState.referral.givenName ||
+                    referralInfoState.referral.surname ||
+                    referralInfoState.referral.email ||
+                    referralInfoState.referral.phone) &&
+                  renderTableRow(referralInfoState.referral)}
+                {referralTableInfo!.map((referralInfo) =>
+                  renderTableRow(referralInfo)
+                )}
+              </tbody>
+            )}
           </table>
         </div>
       </div>
