@@ -301,7 +301,7 @@ function App() {
             <div>
               <FieldSetLegend text="Avatar" />
               <div className="flex justify-center">
-                <img src={croppedImage} />
+                <img src={referralInfoState.referral.avatar} />
               </div>
             </div>
           )}

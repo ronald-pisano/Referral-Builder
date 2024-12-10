@@ -94,6 +94,8 @@ export async function getCroppedImg(
     pixelCrop.height
   );
 
+  return croppedCanvas.toDataURL("image/jpeg");
+
   return new Promise((resolve, reject) => {
     croppedCanvas.toBlob((file: Blob | null) => {
       if (file) {
@@ -133,5 +135,20 @@ export async function getRotatedImage(imageSrc: string, rotation = 0) {
         resolve(URL.createObjectURL(file));
       }
     }, "image/png");
+  });
+}
+
+export function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (reader.result && typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Failed to convert blob to base64"));
+      }
+    };
+    reader.onerror = () => reject(new Error("Blob reading failed"));
+    reader.readAsDataURL(blob); // Read blob as base64
   });
 }
