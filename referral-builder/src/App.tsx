@@ -33,6 +33,7 @@ function App() {
   const [showFormValidations, setShowFormValidations] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>();
+  const [showSidebar, setShowSidebar] = useState(true);
 
   const [referralTableInfo, setReferralTableInfo] = useState<ReferralInfo[]>(
     []
@@ -158,206 +159,221 @@ function App() {
   const isNotNewReferral = referralInfoState.referral.id !== null;
 
   return (
-    <div className="flex">
-      <div className="flex-col p-4 h-screen w-full md:max-w-screen-md min-w-80 overflow-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-start text-dark font-bold text-3xl tracking-normal">
-            Referral Builder
-          </h1>
-          <MenuIcon className="size-6 stroke-black md:hidden" />
+    <div className="flex flex-1">
+      {!showSidebar ? (
+        <div className="absolute top-4 left-8 block">
+          <div className="inline-flex justify-center items-center">
+            <h1 className="text-start text-dark font-bold text-3xl tracking-normal mr-2">
+              Referral Builder
+            </h1>
+            <Button onClick={() => setShowSidebar(!showSidebar)}>
+              <MenuIcon className="size-6 stroke-black" />
+            </Button>
+          </div>
         </div>
-
-        <Fieldset>
-          <FieldSetLegend text="Personal Details" />
-          <div className="grid xl:grid-cols-2 gap-4">
-            <LabeledInput
-              label="Given Name"
-              showValidation={isNotNewReferral || showFormValidations}
-              isValid={() => !!referralInfoState?.referral.givenName}
-              errorMessage="Given name is required"
-              inputProps={{
-                value: referralInfoState?.referral.givenName,
-                invalid: !referralInfoState?.referral.givenName,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_FIELD",
-                    field: "givenName",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="Surname"
-              showValidation={isNotNewReferral || showFormValidations}
-              isValid={() => !!referralInfoState?.referral.surname}
-              errorMessage="Surname is required"
-              inputProps={{
-                value: referralInfoState?.referral.surname,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_FIELD",
-                    field: "surname",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="Email"
-              showValidation={isNotNewReferral || showFormValidations}
-              isValid={() => isValidEmail(referralInfoState?.referral.email)}
-              errorMessage="Email is not valid format"
-              inputProps={{
-                type: "email",
-                value: referralInfoState?.referral.email,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_FIELD",
-                    field: "email",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="Phone"
-              showValidation={isNotNewReferral || showFormValidations}
-              isValid={() => isValidNumber(referralInfoState?.referral.phone)}
-              errorMessage="Phone number is not valid format"
-              inputProps={{
-                value: referralInfoState?.referral.phone,
-                maxLength: 12,
-                onChange: (e) => {
-                  const input = e.target.value;
-                  const formatted = formatPhoneNumber(input);
-                  dispatch({
-                    type: "UPDATE_FIELD",
-                    field: "phone",
-                    payload: formatted,
-                  });
-                },
-              }}
-            />
+      ) : (
+        <div className="flex-col px-4 py-8 xl:px-8 xl:py-12 h-screen grow lg:block xl:max-w-[40rem] lg:max-w-[25rem] md:max-w-[20rem] min-w-80 overflow-auto relative">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-start text-dark font-bold text-3xl tracking-normal">
+              Referral Builder
+            </h1>
+            <Button onClick={() => setShowSidebar(!showSidebar)}>
+              <MenuIcon className="size-6 stroke-black xl:hidden block" />
+            </Button>
           </div>
 
-          <FieldSetLegend text="Address" />
-          <div className="grid xl:grid-cols-2 gap-4">
-            <LabeledInput
-              label="Home Name Or #"
-              inputProps={{
-                value: referralInfoState.referral.address?.homeNameOrNumber,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_ADDRESS",
-                    field: "homeNameOrNumber",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="Street"
-              inputProps={{
-                value: referralInfoState.referral.address?.street,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_ADDRESS",
-                    field: "street",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="Suburb"
-              inputProps={{
-                value: referralInfoState.referral.address?.suburb,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_ADDRESS",
-                    field: "suburb",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="State"
-              inputProps={{
-                value: referralInfoState.referral.address?.state,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_ADDRESS",
-                    field: "state",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="Postcode"
-              inputProps={{
-                value: referralInfoState.referral.address?.postcode,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_ADDRESS",
-                    field: "postcode",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-            <LabeledInput
-              label="Country"
-              inputProps={{
-                value: referralInfoState.referral.address?.country,
-                onChange: (e) =>
-                  dispatch({
-                    type: "UPDATE_ADDRESS",
-                    field: "country",
-                    payload: e.target.value,
-                  }),
-              }}
-            />
-          </div>
-          {referralInfoState.referral.avatar && (
-            <div>
-              <FieldSetLegend text="Avatar" />
-              <div className="flex justify-center">
-                <img src={referralInfoState.referral.avatar} />
-              </div>
+          <Fieldset>
+            <FieldSetLegend text="Personal Details" />
+            <div className="grid xl:grid-cols-2 gap-8">
+              <LabeledInput
+                label="Given Name"
+                showValidation={isNotNewReferral || showFormValidations}
+                isValid={() => !!referralInfoState?.referral.givenName}
+                errorMessage="Given name is required"
+                inputProps={{
+                  value: referralInfoState?.referral.givenName,
+                  invalid: !referralInfoState?.referral.givenName,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_FIELD",
+                      field: "givenName",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="Surname"
+                showValidation={isNotNewReferral || showFormValidations}
+                isValid={() => !!referralInfoState?.referral.surname}
+                errorMessage="Surname is required"
+                inputProps={{
+                  value: referralInfoState?.referral.surname,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_FIELD",
+                      field: "surname",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="Email"
+                showValidation={isNotNewReferral || showFormValidations}
+                isValid={() => isValidEmail(referralInfoState?.referral.email)}
+                errorMessage="Email is not valid format"
+                inputProps={{
+                  type: "email",
+                  value: referralInfoState?.referral.email,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_FIELD",
+                      field: "email",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="Phone"
+                showValidation={isNotNewReferral || showFormValidations}
+                isValid={() => isValidNumber(referralInfoState?.referral.phone)}
+                errorMessage="Phone number is not valid format"
+                inputProps={{
+                  value: referralInfoState?.referral.phone,
+                  maxLength: 12,
+                  onChange: (e) => {
+                    const input = e.target.value;
+                    const formatted = formatPhoneNumber(input);
+                    dispatch({
+                      type: "UPDATE_FIELD",
+                      field: "phone",
+                      payload: formatted,
+                    });
+                  },
+                }}
+              />
             </div>
-          )}
-          <div className="grid xl:grid-cols-2 gap-4 mt-6">
-            <FormButton
-              text="Upload Avatar"
-              type="secondary"
-              buttonProps={{
-                disabled: upsertReferralLoading,
-                onClick: () => {
-                  fileInputRef.current?.click();
-                },
-              }}
-            />
-            <ImageCropper
-              isOpen={isOpen}
-              image={image}
-              croppedImage={croppedImage}
-              setImage={setImage}
-              setIsOpen={setIsOpen}
-              setCroppedImage={setCroppedImage}
-              fileInputRef={fileInputRef}
-            />
-            <FormButton
-              text={
-                referralInfoState.referral.id === null
-                  ? "Create Referral"
-                  : "Update Referral"
-              }
-              type="primary"
-              buttonProps={{
-                type: "submit",
-                onClick: () => handleSubmit(),
-                disabled: upsertReferralLoading,
-              }}
-            />
-          </div>
-        </Fieldset>
-      </div>
-      <div className="grow flex justify-center py-12 px-8 bg-base">
+
+            <FieldSetLegend text="Address" />
+            <div className="grid xl:grid-cols-2 gap-8">
+              <LabeledInput
+                label="Home Name Or #"
+                inputProps={{
+                  value: referralInfoState.referral.address?.homeNameOrNumber,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_ADDRESS",
+                      field: "homeNameOrNumber",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="Street"
+                inputProps={{
+                  value: referralInfoState.referral.address?.street,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_ADDRESS",
+                      field: "street",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="Suburb"
+                inputProps={{
+                  value: referralInfoState.referral.address?.suburb,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_ADDRESS",
+                      field: "suburb",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="State"
+                inputProps={{
+                  value: referralInfoState.referral.address?.state,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_ADDRESS",
+                      field: "state",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="Postcode"
+                inputProps={{
+                  value: referralInfoState.referral.address?.postcode,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_ADDRESS",
+                      field: "postcode",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+              <LabeledInput
+                label="Country"
+                inputProps={{
+                  value: referralInfoState.referral.address?.country,
+                  onChange: (e) =>
+                    dispatch({
+                      type: "UPDATE_ADDRESS",
+                      field: "country",
+                      payload: e.target.value,
+                    }),
+                }}
+              />
+            </div>
+            {referralInfoState.referral.avatar && (
+              <div>
+                <FieldSetLegend text="Avatar" />
+                <div className="flex justify-center">
+                  <img src={referralInfoState.referral.avatar} />
+                </div>
+              </div>
+            )}
+            <div className="grid xl:grid-cols-2 gap-8 mt-6">
+              <FormButton
+                text="Upload Avatar"
+                type="secondary"
+                buttonProps={{
+                  disabled: upsertReferralLoading,
+                  onClick: () => {
+                    fileInputRef.current?.click();
+                  },
+                }}
+              />
+              <ImageCropper
+                isOpen={isOpen}
+                image={image}
+                croppedImage={croppedImage}
+                setImage={setImage}
+                setIsOpen={setIsOpen}
+                setCroppedImage={setCroppedImage}
+                fileInputRef={fileInputRef}
+              />
+              <FormButton
+                text={
+                  referralInfoState.referral.id === null
+                    ? "Create Referral"
+                    : "Update Referral"
+                }
+                type="primary"
+                buttonProps={{
+                  type: "submit",
+                  onClick: () => handleSubmit(),
+                  disabled: upsertReferralLoading,
+                }}
+              />
+            </div>
+          </Fieldset>
+        </div>
+      )}
+      <div className="grow flex justify-center py-16 px-8 h-screen rounded-md bg-base overflow-auto">
         <DeletionModal
           isOpen={openDeleteModal}
           onCancel={() => {
@@ -372,7 +388,7 @@ function App() {
           }}
         />
 
-        <div className="bg-white border-md w-full p-6">
+        <div className="bg-white rounded-md min-w-[35rem] w-full p-6">
           {isLoading ? (
             <div>Loading...</div>
           ) : (
