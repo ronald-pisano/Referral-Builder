@@ -1,13 +1,12 @@
 import { ReferralInfo } from "../models/ReferralInfo";
-import testReferralInfoData from "../models/test-data/ReferralInfo-Test";
 
-const referrals = testReferralInfoData;
+const baseUrl = "http://localhost:5000/api/referrals";
 
 export const fetchReferrals = async (): Promise<ReferralInfo[]> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   try {
-    const response = await fetch("http://localhost:5012/api/referrals", {
+    const response = await fetch(baseUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +24,7 @@ export const fetchReferrals = async (): Promise<ReferralInfo[]> => {
     console.error("Error fetching data:", error);
   }
 
-  return referrals;
+  return [];
 };
 
 export const upsertReferral = async (
@@ -38,17 +37,14 @@ export const upsertReferral = async (
 
   if (id) {
     try {
-      const response = await fetch(
-        `http://localhost:5012/api/referrals/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(`${baseUrl}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-          body: JSON.stringify(requestBody),
-        }
-      );
+        body: JSON.stringify(requestBody),
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -62,7 +58,7 @@ export const upsertReferral = async (
     }
   } else {
     try {
-      const response = await fetch(`http://localhost:5012/api/referrals/`, {
+      const response = await fetch(baseUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,4 +79,27 @@ export const upsertReferral = async (
     }
   }
   return referral;
+};
+
+export const deleteReferral = async (referralId: number) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  try {
+    const response = await fetch(`${baseUrl}/${referralId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
 };

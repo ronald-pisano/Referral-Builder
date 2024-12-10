@@ -1,5 +1,4 @@
 import { Button, Fieldset } from "@headlessui/react";
-import "./App.css";
 import FieldSetLegend from "./components/forms/FieldSetLegend";
 import LabeledInput from "./components/forms/LabeledInput";
 import MenuIcon from "./assets/icons/MenuIcon";
@@ -14,7 +13,12 @@ import XMarkIcon from "./assets/icons/XMarkIcon";
 import { formatPhoneNumber } from "./helpers/formatters";
 import { isValidEmail, isValidNumber } from "./helpers/validators";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { upsertReferral, fetchReferrals } from "./api/referrals";
+import {
+  upsertReferral,
+  fetchReferrals,
+  deleteReferral,
+} from "./api/referrals";
+import DeletionModal from "./components/DeletionModal";
 
 function App() {
   const [referralInfoState, dispatch] = useReducer(
@@ -27,6 +31,8 @@ function App() {
   const [croppedImage, setCroppedImage] = useState<string>();
   const queryClient = useQueryClient();
   const [showFormValidations, setShowFormValidations] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>();
 
   const [referralTableInfo, setReferralTableInfo] = useState<ReferralInfo[]>(
     []
@@ -48,6 +54,14 @@ function App() {
       queryClient.invalidateQueries({ queryKey: ["referrals"] });
     },
   });
+
+  const { mutateAsync: deleteReferralMutation, isLoading: deleteLoading } =
+    useMutation({
+      mutationFn: deleteReferral,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["referrals"] });
+      },
+    });
 
   useEffect(() => {
     referrals && setReferralTableInfo(referrals!);
@@ -93,9 +107,8 @@ function App() {
                 </Button>
                 <Button
                   onClick={() => {
-                    setReferralTableInfo((prev) =>
-                      prev.filter((referral) => referral.id !== referralInfo.id)
-                    );
+                    setOpenDeleteModal(true);
+                    setSelectedId(referralInfo.id);
                   }}
                 >
                   <TrashIcon className="fill-primary stroke-none stroke-1 size-4 inline" />
@@ -345,6 +358,20 @@ function App() {
         </Fieldset>
       </div>
       <div className="grow flex justify-center py-12 px-8 bg-base">
+        <DeletionModal
+          isOpen={openDeleteModal}
+          onCancel={() => {
+            setOpenDeleteModal(false);
+            setSelectedId(null);
+          }}
+          isProcessing={deleteLoading}
+          onDelete={async () => {
+            await deleteReferralMutation(selectedId!);
+            setOpenDeleteModal(false);
+            setSelectedId(null);
+          }}
+        />
+
         <div className="bg-white border-md w-full p-6">
           {isLoading ? (
             <div>Loading...</div>
