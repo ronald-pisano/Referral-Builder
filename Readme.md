@@ -31,16 +31,16 @@ Create a simple REST API that would allow creating and reading referrals
 ## Installation Requirements:
 
 1. Nodejs [Nodejs](https://nodejs.org/en)
-2. Docker Desktop [DockerDesktop](https://www.docker.com/products/docker-desktop/)
+2. Docker Desktop [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 3. Visual Studio Code [VSCode](https://code.visualstudio.com/)
-4. Visual Studio 2022 (Community Edition) [VS2019](https://visualstudio.microsoft.com/)
+4. Visual Studio 2022 (Community Edition) [VS2022](https://visualstudio.microsoft.com/)
 
 ## Run Front-end
 
 1. Navigate to referral-builder folder
 2. Run `npm install` on terminal
 3. Run `npm run dev`
-4. Open on [DevLink](http://localhost:3000/)
+4. Open on [Front-end Link](http://localhost:3000/)
 
 ## Run Back-end
 
@@ -59,7 +59,8 @@ Create a simple REST API that would allow creating and reading referrals
 
 ## Notes - Time it took to develop (16-20hrs)
 
-- Build steps:
+**Build steps:**
+
 - Create the react project with vite as base framework
 - Create initial state of repository
 - Install tailwindcss (Main css design framework used)
